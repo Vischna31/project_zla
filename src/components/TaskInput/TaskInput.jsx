@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { addTask } from '../../reducers/tasksReducer';
+import { addTask } from '../../actions/taskActions'; 
 import '../../styles/TaskInput.css';
 
 export default function TaskInput() {
@@ -15,7 +15,7 @@ export default function TaskInput() {
   };
 
   return (
-    <div>
+    <div className="task-input">
       <input
         type="text"
         placeholder="Введите задачу..."

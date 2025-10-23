@@ -1,24 +1,4 @@
-//Типы константы
-const ADD_TASK = 'tasks/ADD_TASK';
-const TOGGLE_TASK = 'tasks/TOGGLE_TASK';
-const DELETE_TASK = 'tasks/DELETE_TASK';
-
-// Создал функцию для импорта что при добавление задачи выводится тип действия и текст задачи
-export const addTask = (text) => ({
-  type: ADD_TASK,
-  payload: text,
-});
-
-// Создал функцию для отмечания выполнено не выполнено
-export const toggleTask = (id) => ({
-  type: TOGGLE_TASK,
-  payload: id,
-});
-// Создал функцию для отмечания удаление задачи с выводом id 
-export const deleteTask = (id) => ({
-  type: DELETE_TASK,
-  payload: id,
-});
+import { ADD_TASK, TOGGLE_TASK, DELETE_TASK } from '../constants/taskConstants';
 
 // Пустой массив данных или же нулевое значение 
 const initialState = [];
