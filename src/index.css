@@ -66,3 +66,23 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
+
+
+.task-main {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.task-description {
+  margin-top: 4px;
+  padding-left: 24px;
+  font-size: 0.9rem;
+  color: #555;
+}
+
+.task-toggle-indicator {
+  margin-left: 8px;
+  font-size: 0.8rem;
+  color: #888;
+}

@@ -1,28 +1,105 @@
-import { useState } from 'react';
-import { useDispatch } from 'react-redux';
-import { addTask } from '../../actions/taskActions'; 
-import '../../styles/TaskInput.css';
+import { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { addTask } from "../../actions/taskActions";
+import { fetchDisciplines } from "../../actions/disciplineActions";
+import "../../styles/TaskInput.css";
 
 export default function TaskInput() {
-  const [text, setText] = useState('');
+  const [text, setText] = useState("");
+  const [description, setDescription] = useState("");
+  const [dueDateTime, setDueDateTime] = useState("");
+  const [disciplineId, setDisciplineId] = useState(null);
+  const [remindBeforeHour, setRemindBeforeHour] = useState(false); // флаг
+
   const dispatch = useDispatch();
+  const disciplines = useSelector((state) => state.disciplines || []);
+
+  useEffect(() => {
+    dispatch(fetchDisciplines());
+  }, [dispatch]);
 
   const handleAdd = () => {
     if (text.trim()) {
-      dispatch(addTask(text));
-      setText('');
+      // если флаг включен и есть дедлайн, шлём 1 час, иначе null
+      const remindBeforeHours =
+        remindBeforeHour && dueDateTime ? 1 : null;
+
+      dispatch(
+        addTask(
+          text,
+          description,
+          dueDateTime,
+          disciplineId,
+          remindBeforeHours
+        )
+      );
+
+      setText("");
+      setDescription("");
+      setDueDateTime("");
+      setDisciplineId(null);
+      setRemindBeforeHour(false);
     }
   };
 
   return (
-    <div className="task-input">
-      <input
-        type="text"
-        placeholder="Введите задачу..."
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-      />
-      <button onClick={handleAdd}>Добавить</button>
+    <div className="task-input-wrapper">
+      <div className="task-input-row">
+        <input
+          type="text"
+          placeholder="Введите задачу..."
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+        />
+
+        <input
+          type="datetime-local"
+          className="task-datetime-input"
+          value={dueDateTime}
+          onChange={(e) => setDueDateTime(e.target.value)}
+        />
+
+        <select
+          className="task-discipline-select"
+          value={disciplineId ?? ""}
+          onChange={(e) =>
+            setDisciplineId(
+              e.target.value === "" ? null : Number(e.target.value)
+            )
+          }
+        >
+          <option value="">Без дисциплины</option>
+          {disciplines.map((d) => (
+            <option key={d.id} value={d.id}>
+              {d.name}
+            </option>
+          ))}
+        </select>
+
+        <button className="task-add-btn" onClick={handleAdd}>
+          +
+        </button>
+      </div>
+
+      <div className="task-desc-row">
+        <textarea
+          className="task-input-description"
+          placeholder="Описание задачи..."
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          rows={2}
+        />
+      </div>
+
+      <label className="task-reminder-row">
+        <input
+          type="checkbox"
+          checked={remindBeforeHour}
+          onChange={(e) => setRemindBeforeHour(e.target.checked)}
+          disabled={!dueDateTime} // нельзя ставить напоминание без дедлайна
+        />
+        <span>Напомнить за 1 час до дедлайна</span>
+      </label>
     </div>
   );
 }

@@ -1,19 +1,16 @@
-import { ADD_TASK, TOGGLE_TASK, DELETE_TASK } from '../constants/taskConstants';
+import { ADD_TASK, TOGGLE_TASK, DELETE_TASK, SET_TASKS } from "../constants/taskConstants";
 
-// Пустой массив данных или же нулевое значение 
 const initialState = [];
-// Редусер для состояние , возвращает состояние
+
 const tasksReducer = (state = initialState, action) => {
   switch (action.type) {
+    case SET_TASKS:
+      // полностью заменяем список задач тем, что пришло с сервера
+      return action.payload;
+
     case ADD_TASK:
-      return [
-        ...state,
-        {
-          id: Date.now(),
-          text: action.payload,
-          done: false,
-        },
-      ];
+      // теперь в payload уже готовый объект {id, text, done}
+      return [...state, action.payload];
 
     case TOGGLE_TASK:
       return state.map((task) =>
