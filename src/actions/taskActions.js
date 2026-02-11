@@ -13,10 +13,18 @@ export const setTasks = (tasks) => ({
   payload: tasks,
 });
 
-// Загрузка задач из Django
 export const fetchTasks = () => async (dispatch) => {
   const res = await fetch(`${API_BASE}/tasks/`);
+  console.log("fetch status", res.status);
+
   const data = await res.json();
+  console.log("tasks from API", data);
+
+  if (!Array.isArray(data)) {
+    console.error("Tasks API returned non-array", data);
+    dispatch(setTasks([]));
+    return;
+  }
 
   const mapped = data.map((t) => ({
     id: t.id,
@@ -26,11 +34,12 @@ export const fetchTasks = () => async (dispatch) => {
     dueDateTime: t.deadline || null,
     disciplineId: t.discipline ? t.discipline.id : null,
     disciplineName: t.discipline ? t.discipline.name : "",
-    // при желании можно позже добавить t.remind_before_hours
   }));
 
+  console.log("mapped tasks", mapped);
   dispatch(setTasks(mapped));
 };
+
 
 // Добавление задачи через Django (+ напоминание)
 export const addTask =
