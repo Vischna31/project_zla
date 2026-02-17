@@ -3,6 +3,23 @@ from django.conf import settings
 from django.contrib.auth.models import User
 
 
+class Group(models.Model):
+    """Учебная группа"""
+    name = models.CharField(max_length=100)
+    description = models.TextField(blank=True)
+    start_year = models.PositiveIntegerField()  # Год начала обучения
+    end_year = models.PositiveIntegerField()    # Год окончания обучения
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    def __str__(self):
+        return f"{self.name} ({self.start_year}-{self.end_year})"
+    
+    class Meta:
+        verbose_name = "Группа"
+        verbose_name_plural = "Группы"
+
+
 class UserProfile(models.Model):
     class Role(models.TextChoices):
         STUDENT = 'student', 'Студент'
@@ -13,6 +30,13 @@ class UserProfile(models.Model):
         max_length=20,
         choices=Role.choices,
         default=Role.STUDENT,
+    )
+    group = models.ForeignKey(
+        Group,
+        on_delete=models.SET_NULL,
+        related_name='students',
+        null=True,
+        blank=True,
     )
 
     def __str__(self):
@@ -52,6 +76,13 @@ class Task(models.Model):
         settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,
         related_name='created_tasks',
+        null=True,
+        blank=True,
+    )
+    group = models.ForeignKey(
+        Group,
+        on_delete=models.SET_NULL,
+        related_name='tasks',
         null=True,
         blank=True,
     )

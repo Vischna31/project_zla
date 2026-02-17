@@ -1,5 +1,35 @@
 from rest_framework import serializers
-from .models import Task, Discipline, Reminder
+from django.contrib.auth.models import User
+from .models import Task, Discipline, Reminder, UserProfile, Group
+
+
+class GroupSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Group
+        fields = ["id", "name", "description", "start_year", "end_year"]
+
+
+class UserProfileSerializer(serializers.ModelSerializer):
+    group = GroupSerializer(read_only=True)
+    
+    class Meta:
+        model = UserProfile
+        fields = ["role", "group"]
+
+
+class UserSerializer(serializers.ModelSerializer):
+    profile = UserProfileSerializer(read_only=True)
+
+    class Meta:
+        model = User
+        fields = [
+            "id",
+            "username",
+            "email",
+            "first_name",
+            "last_name",
+            "profile",
+        ]
 
 
 class DisciplineSerializer(serializers.ModelSerializer):
@@ -17,12 +47,17 @@ class TaskSerializer(serializers.ModelSerializer):
         required=False,
         allow_null=True,
     )
-    has_reminder = serializers.SerializerMethodField()
-    remind_before_hours = serializers.IntegerField(
+    group = GroupSerializer(read_only=True)
+    group_id = serializers.PrimaryKeyRelatedField(
+        source="group",
+        queryset=Group.objects.all(),
         write_only=True,
         required=False,
         allow_null=True,
     )
+    student = UserSerializer(read_only=True)
+    # student_id игнорируем - устанавливаем в perform_create
+    has_reminder = serializers.SerializerMethodField()
 
     class Meta:
         model = Task
@@ -36,34 +71,11 @@ class TaskSerializer(serializers.ModelSerializer):
             "completed_at",
             "discipline",
             "discipline_id",
+            "group",
+            "group_id",
+            "student",
             "has_reminder",
-            "remind_before_hours",
         ]
 
     def get_has_reminder(self, obj):
-        return obj.reminders.filter(is_sent=False).exists()
-
-    def _create_reminder(self, task, remind_before_hours):
-        from django.utils import timezone
-
-        if not task.deadline or not remind_before_hours:
-            return
-
-        remind_at = task.deadline - timezone.timedelta(hours=remind_before_hours)
-        Reminder.objects.create(task=task, remind_at=remind_at)
-
-    def create(self, validated_data):
-        remind_before_hours = validated_data.pop("remind_before_hours", None)
-        task = super().create(validated_data)
-        self._create_reminder(task, remind_before_hours)
-        return task
-
-    def update(self, instance, validated_data):
-        remind_before_hours = validated_data.pop("remind_before_hours", None)
-        task = super().update(instance, validated_data)
-
-        if remind_before_hours is not None:
-            task.reminders.filter(is_sent=False).delete()
-            self._create_reminder(task, remind_before_hours)
-
-        return task
+        return Reminder.objects.filter(task=obj, is_sent=False).exists()

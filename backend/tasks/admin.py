@@ -1,5 +1,11 @@
 from django.contrib import admin
-from .models import UserProfile, Discipline, Task, Reminder
+from .models import Group, UserProfile, Discipline, Task, Reminder
+
+@admin.register(Group)
+class GroupAdmin(admin.ModelAdmin):
+    list_display = ("id", "name", "start_year", "end_year", "description")
+    search_fields = ("name",)
+    list_filter = ("start_year", "end_year")
 
 @admin.register(Discipline)
 class DisciplineAdmin(admin.ModelAdmin):
@@ -13,12 +19,13 @@ class TaskAdmin(admin.ModelAdmin):
         "title",
         "status",
         "discipline",
+        "group",
         "student",
         "teacher",
         "deadline",
         "created_at",
     )
-    list_filter = ("status", "discipline")
+    list_filter = ("status", "discipline", "group")
     search_fields = ("title", "description")
     date_hierarchy = "deadline"
 
@@ -29,5 +36,5 @@ class ReminderAdmin(admin.ModelAdmin):
 
 @admin.register(UserProfile)
 class UserProfileAdmin(admin.ModelAdmin):
-    list_display = ("user", "role")
-    list_filter = ("role",)
+    list_display = ("user", "role", "group")
+    list_filter = ("role", "group")

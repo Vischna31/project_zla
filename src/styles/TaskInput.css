@@ -90,6 +90,15 @@
   border-radius: 12px;
   outline: none;
 }
+.task-group-select {
+  border: none;
+  background: transparent;
+  padding: 8px 10px;
+  font-size: 12px;
+  color: #374151;
+  border-radius: 12px;
+  outline: none;
+}
 .task-reminder-row {
   display: flex;
   align-items: center;
@@ -98,4 +107,3 @@
   font-size: 12px;
   color: #4b5563;
 }
-
