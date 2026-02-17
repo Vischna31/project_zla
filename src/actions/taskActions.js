@@ -1,3 +1,4 @@
+// src/actions/taskActions.js
 import {
   ADD_TASK,
   TOGGLE_TASK,
@@ -18,7 +19,6 @@ const normalizeDateTime = (value) => {
   if (value.length === 16) return value + ":00";
   return value;
 };
-
 
 export const setTasks = (tasks) => ({
   type: SET_TASKS,
@@ -46,13 +46,16 @@ export const fetchTasks = () => async (dispatch) => {
   const data = await res.json();
   console.log("tasks from API", data);
 
-  if (!Array.isArray(data)) {
+  // поддерживаем оба варианта: с пагинацией и без
+  const tasksArray = Array.isArray(data) ? data : data.results;
+
+  if (!Array.isArray(tasksArray)) {
     console.error("Tasks API returned non-array", data);
     dispatch(setTasks([]));
     return;
   }
 
-  const mapped = data.map((t) => ({
+  const mapped = tasksArray.map((t) => ({
     id: t.id,
     text: t.title,
     description: t.description || "",
